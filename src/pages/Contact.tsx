@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import { brand } from "@/config/brand";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -15,52 +16,71 @@ const Contact = () => {
     phone: "",
     company: "",
     service: "",
-    message: ""
+    message: "",
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const contactInfo = [
-    {
-      icon: <Mail className="h-6 w-6 text-primary" />,
-      title: "Email",
-      value: "jwtechsolutions@gmail.com",
-      subtitle: "Respuesta en 24 horas"
-    },
-    {
-      icon: <Phone className="h-6 w-6 text-accent" />,
-      title: "Teléfono",
-      value: "+1 (809) 761-2875",
-      subtitle: "Lun - Vie 9:00 - 18:00"
-    },
-    {
-      icon: <MapPin className="h-6 w-6 text-primary" />,
-      title: "Oficina",
-      value: "HERRERA LO MA CALENTON",
-      subtitle: "Citas disponibles"
-    },
-    {
-      icon: <Clock className="h-6 w-6 text-accent" />,
-      title: "Horarios",
-      value: "Lun - Vie: 9:00 - 18:00",
-      subtitle: "Sáb: 10:00 - 14:00"
-    }
-  ];
+  const services = useMemo(() => {
+    // Usamos los servicios del brand, + “Other”
+    return [...(brand.services || []), "Other"];
+  }, []);
 
-  const services = [
-    "Desarrollo Web",
-    "Aplicaciones Móviles", 
-    "Software Personalizado",
-    "Consultoría Técnica",
-    "E-commerce",
-    "Otro"
-  ];
+  const mapsUrl = useMemo(() => {
+    const q = encodeURIComponent(brand.mapsQuery || brand.address || brand.name);
+    return `https://www.google.com/maps/search/?api=1&query=${q}`;
+  }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const websiteUrl = useMemo(() => {
+    if (!brand.website) return "";
+    return brand.website.startsWith("http") ? brand.website : `https://${brand.website}`;
+  }, []);
+
+  const contactInfo = useMemo(() => {
+    return [
+      {
+        icon: <Mail className="h-6 w-6" style={{ color: brand.theme.accent }} />,
+        title: "Email",
+        value: brand.email,
+        subtitle: "We reply as soon as possible",
+        href: `mailto:${brand.email}`,
+        cta: "Send Email",
+      },
+      {
+        icon: <Phone className="h-6 w-6" style={{ color: brand.theme.accent }} />,
+        title: "Phone",
+        value: brand.phoneDisplay,
+        subtitle: "Call us for a Schedule Your Appointment, It's Free",
+        href: `tel:${brand.phoneE164}`,
+        cta: "Call Now",
+      },
+      {
+        icon: <MapPin className="h-6 w-6" style={{ color: brand.theme.accent }} />,
+        title: "Location",
+        value: brand.address || "Open in Maps",
+        subtitle: "Tap to open directions",
+        href: mapsUrl,
+        cta: "Open Maps",
+      },
+      {
+        icon: <Clock className="h-6 w-6" style={{ color: brand.theme.accent }} />,
+        title: "Hours",
+        value: (brand.hours && brand.hours[0]) ? brand.hours[0] : "See schedule",
+        subtitle: (brand.hours && brand.hours[1]) ? brand.hours[1] : "Mon–Fri",
+        href: "", // no link
+        cta: "",
+      },
+    ];
+  }, [mapsUrl]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -68,12 +88,12 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // ✅ Simulación (igual que tú). Luego puedes conectarlo a EmailJS, Formspree o tu backend.
+    await new Promise((resolve) => setTimeout(resolve, 1200));
 
     toast({
-      title: "¡Mensaje enviado exitosamente!",
-      description: "Nos pondremos en contacto contigo pronto.",
+      title: "Message sent!",
+      description: "We’ll contact you soon.",
     });
 
     setFormData({
@@ -82,7 +102,7 @@ const Contact = () => {
       phone: "",
       company: "",
       service: "",
-      message: ""
+      message: "",
     });
 
     setIsSubmitting(false);
@@ -91,69 +111,98 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      {/* Hero Section */}
-      <section className="relative py-20 bg-hero-gradient text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
+
+      {/* Hero */}
+      <section className="relative py-20 text-white overflow-hidden bg-black">
+        <div className="absolute inset-0 bg-black/50"></div>
+
+        <div
+          className="absolute -top-24 left-1/2 -translate-x-1/2 w-[900px] h-[900px] rounded-full blur-3xl opacity-20"
+          style={{ backgroundColor: brand.theme.accent }}
+        />
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Contáctanos
+            Contact <span style={{ color: brand.theme.accent }}>{brand.name}</span>
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
-            ¿Tienes un proyecto en mente? Hablemos y convirtamos tu idea en realidad
+          <p className="text-xl md:text-2xl text-white/85 max-w-3xl mx-auto">
+            {brand.contactSubtitle || "Schedule your appointment now or ask about insurance claims, towing, and repairs."}
           </p>
+
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="text-black" style={{ backgroundColor: brand.theme.accent }}>
+              <a href={`tel:${brand.phoneE164}`}>
+                <Phone className="mr-2 h-5 w-5" />
+                Call {brand.phoneDisplay}
+              </a>
+            </Button>
+
+            {websiteUrl ? (
+              <Button asChild size="lg" variant="outline" className="text-lg px-8 py-3">
+                <a href={websiteUrl} target="_blank" rel="noreferrer">
+                  Visit Website <ExternalLink className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+            ) : null}
+          </div>
         </div>
       </section>
 
-      {/* Contact Info Cards */}
+      {/* Info + Form */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Contact Info Cards */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
             {contactInfo.map((info, index) => (
-              <Card key={index} className="bg-card-gradient border-0 shadow-medium hover:shadow-strong transition-all duration-300 hover:-translate-y-2 text-center">
+              <Card
+                key={index}
+                className="bg-card-gradient border-0 shadow-medium hover:shadow-strong transition-all duration-300 hover:-translate-y-2 text-center"
+              >
                 <CardContent className="p-6">
-                  <div className="flex justify-center mb-4">
-                    {info.icon}
-                  </div>
-                  <h3 className="font-bold text-foreground mb-2">
-                    {info.title}
-                  </h3>
-                  <p className="text-foreground font-medium mb-1">
-                    {info.value}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {info.subtitle}
-                  </p>
+                  <div className="flex justify-center mb-4">{info.icon}</div>
+                  <h3 className="font-bold text-foreground mb-2">{info.title}</h3>
+                  <p className="text-foreground font-medium mb-1">{info.value}</p>
+                  <p className="text-sm text-muted-foreground mb-4">{info.subtitle}</p>
+
+                  {info.href && info.cta ? (
+                    <Button asChild variant="outline" className="w-full">
+                      <a href={info.href} target={info.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
+                        {info.cta}
+                      </a>
+                    </Button>
+                  ) : null}
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          {/* Contact Form & Map Section */}
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Contact Form */}
+            {/* Form */}
             <Card className="bg-card-gradient border-0 shadow-strong">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-foreground">
-                  Envíanos un mensaje
+                  Schedule Your Appointment Now
                 </CardTitle>
                 <p className="text-muted-foreground">
-                  Completa el formulario y nos pondremos en contacto contigo en menos de 24 horas
+                  Tell us what you need and we’ll respond as soon as possible.
                 </p>
               </CardHeader>
+
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Nombre completo *</Label>
+                      <Label htmlFor="name">Full Name *</Label>
                       <Input
                         id="name"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        placeholder="Tu nombre"
+                        placeholder="Your name"
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="email">Email *</Label>
                       <Input
@@ -163,36 +212,37 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        placeholder="tu@email.com"
+                        placeholder="you@email.com"
                       />
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Teléfono</Label>
+                      <Label htmlFor="phone">Phone</Label>
                       <Input
                         id="phone"
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        placeholder="+1 (809) 761-2875"
+                        placeholder={brand.phoneDisplay}
                       />
                     </div>
+
                     <div className="space-y-2">
-                      <Label htmlFor="company">Empresa</Label>
+                      <Label htmlFor="company">Insurance / Company (optional)</Label>
                       <Input
                         id="company"
                         name="company"
                         value={formData.company}
                         onChange={handleInputChange}
-                        placeholder="Nombre de tu empresa"
+                        placeholder="Insurance provider (optional)"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="service">Servicio de interés</Label>
+                    <Label htmlFor="service">Service</Label>
                     <select
                       id="service"
                       name="service"
@@ -200,17 +250,17 @@ const Contact = () => {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                     >
-                      <option value="">Selecciona un servicio</option>
-                      {services.map((service, index) => (
-                        <option key={index} value={service}>
-                          {service}
+                      <option value="">Select a service</option>
+                      {services.map((s, idx) => (
+                        <option key={idx} value={s}>
+                          {s}
                         </option>
                       ))}
                     </select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="message">Mensaje *</Label>
+                    <Label htmlFor="message">Message *</Label>
                     <Textarea
                       id="message"
                       name="message"
@@ -218,20 +268,21 @@ const Contact = () => {
                       onChange={handleInputChange}
                       required
                       rows={5}
-                      placeholder="Cuéntanos sobre tu proyecto..."
+                      placeholder="Describe the issue, vehicle details, and anything we should know..."
                     />
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-tech-gradient hover:opacity-90 transition-opacity"
+                  <Button
+                    type="submit"
+                    className="w-full text-black"
+                    style={{ backgroundColor: brand.theme.accent }}
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
-                      "Enviando..."
+                      "Sending..."
                     ) : (
                       <>
-                        Enviar mensaje
+                        Send Request
                         <Send className="ml-2 h-4 w-4" />
                       </>
                     )}
@@ -240,18 +291,25 @@ const Contact = () => {
               </CardContent>
             </Card>
 
-            {/* Map & Additional Info */}
+            {/* Map + Why choose us */}
             <div className="space-y-8">
-              {/* Map Placeholder */}
+              {/* Map */}
               <Card className="bg-card-gradient border-0 shadow-medium">
                 <CardContent className="p-0">
-                  <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <MapPin className="h-12 w-12 text-primary mx-auto mb-4" />
-                      <p className="text-muted-foreground">Mapa de ubicación</p>
-                      <p className="text-sm text-muted-foreground">123 Tech Street, Ciudad</p>
+                  <a href={mapsUrl} target="_blank" rel="noreferrer" className="block">
+                    <div className="h-64 bg-muted rounded-lg flex items-center justify-center hover:opacity-90 transition-opacity">
+                      <div className="text-center p-6">
+                        <MapPin className="h-12 w-12 mx-auto mb-4" style={{ color: brand.theme.accent }} />
+                        <p className="text-muted-foreground font-medium">Open location in Google Maps</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {brand.address || "Tap to view directions"}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-3 underline">
+                          Click to open maps
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  </a>
                 </CardContent>
               </Card>
 
@@ -259,24 +317,34 @@ const Contact = () => {
               <Card className="bg-card-gradient border-0 shadow-medium">
                 <CardHeader>
                   <CardTitle className="text-xl font-bold text-foreground">
-                    ¿Por qué elegirnos?
+                    Why choose us?
                   </CardTitle>
                 </CardHeader>
+
                 <CardContent>
                   <ul className="space-y-3">
                     {[
-                      "Respuesta rápida en menos de 24 horas",
-                      "Presupuestos sin compromiso",
-                      "Equipo especializado y certificado",
-                      "Soporte técnico 24/7",
-                      "Garantía en todos nuestros proyectos"
+                      "Schedule Your Appointment for Free and clear guidance",
+                      "Help with insurance claims",
+                      "Quality repairs and professional finish",
+                      "Towing service available",
+                      "Experienced team since 1994",
                     ].map((item, index) => (
                       <li key={index} className="flex items-center text-sm">
-                        <CheckCircle className="h-4 w-4 text-accent mr-3 flex-shrink-0" />
+                        <CheckCircle className="h-4 w-4 mr-3 flex-shrink-0" style={{ color: brand.theme.accent }} />
                         <span className="text-muted-foreground">{item}</span>
                       </li>
                     ))}
                   </ul>
+
+                  <div className="mt-6 text-sm text-muted-foreground">
+                    <div className="font-semibold text-foreground mb-2">Business hours</div>
+                    <ul className="space-y-1">
+                      {(brand.hours || []).map((h) => (
+                        <li key={h}>{h}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -284,18 +352,21 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Bottom CTA */}
       <section className="py-20 bg-muted/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-            ¿Prefieres una llamada directa?
+            Prefer a direct call?
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Agenda una consulta gratuita de 30 minutos para discutir tu proyecto
+            Call us now and we’ll guide you through the next steps.
           </p>
-          <Button size="lg" className="bg-tech-gradient hover:opacity-90 transition-opacity">
-            <Phone className="mr-2 h-5 w-5" />
-            Agendar Llamada
+
+          <Button asChild size="lg" className="text-black" style={{ backgroundColor: brand.theme.accent }}>
+            <a href={`tel:${brand.phoneE164}`}>
+              <Phone className="mr-2 h-5 w-5" />
+              Call {brand.phoneDisplay}
+            </a>
           </Button>
         </div>
       </section>
