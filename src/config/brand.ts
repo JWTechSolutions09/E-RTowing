@@ -1,12 +1,12 @@
 // src/config/brand.ts
 export const brand = {
-  name: "Int Town Services",
+  name: "E&R TOWING",
   tagline: "Boston's Trusted Towing Service",
-  instagram: "@INTTOWNSERVICES",
+  instagram: "@E&RTOWING",
   phoneDisplay: "(617) 777-6118",
   phoneE164: "+16177776118",
-  website: "www.inttownservices.com",
-  email: "info@inttownservices.com",
+  website: "www.E&Rtowingnservices.com",
+  email: "info@E&Rtowingnservices.com",
   address: "251 Norwell st Boston Ma 02124",
   mapsQuery: "251 Norwell st Boston Ma 02124",
   contactSubtitle: "24/7 Emergency Towing Service in Boston. Fast, Reliable, Professional.",
@@ -40,12 +40,12 @@ export const brand = {
   },
   // ✅ Agrega en src/config/brand.js
 about: {
-  heroTitle: "About Int Town Services",
+  heroTitle: "About E&R TOWING",
   heroSubtitle:
     "Boston's premier 24/7 towing service — fast response times, professional service, and reliable assistance when you need it most.",
   storyTitle: "Our Story",
   storyP1:
-    "Int Town Services provides reliable 24-hour towing service throughout Boston and surrounding areas. We understand that breakdowns and accidents happen at the worst times, which is why we're available 24/7.",
+    "E&R TOWING Services provides reliable 24-hour towing service throughout Boston and surrounding areas. We understand that breakdowns and accidents happen at the worst times, which is why we're available 24/7.",
   storyP2:
     "Our fleet of modern tow trucks and experienced operators ensure your vehicle is handled with care and professionalism. From emergency towing to roadside assistance, we're here to get you back on the road safely and quickly.",
   mission:
